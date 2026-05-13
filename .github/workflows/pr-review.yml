@@ -19,11 +19,10 @@ jobs:
         run: npm install -g @anthropic-ai/claude-code
 
       - name: Initialize Claude development environment
-        # Registers project-configured marketplaces so enabledPlugins can resolve
         run: |
           if [ -f ".claude/settings.json" ]; then
             MARKETPLACE=$(python3 -c "
-import json, sys
+import json
 s = json.load(open('.claude/settings.json'))
 for name, cfg in s.get('extraKnownMarketplaces', {}).items():
     src = cfg.get('source', {})
@@ -40,8 +39,7 @@ for name, cfg in s.get('extraKnownMarketplaces', {}).items():
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
 
       - name: Run Claude PR review
-        run: |
-          claude --print "Review this PR for security issues and code quality."
+        run: claude --print "Review this PR for security issues and code quality."
         env:
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
