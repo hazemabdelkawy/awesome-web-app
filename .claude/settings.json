@@ -1,0 +1,13 @@
+{
+  "extraKnownMarketplaces": {
+    "claude-dev-tools": {
+      "source": {
+        "source": "github",
+        "repo": "hazemabdelkawy/claude-dev-tools"
+      }
+    }
+  },
+  "enabledPlugins": {
+    "dev-assistant@claude-dev-tools": true
+  }
+}
