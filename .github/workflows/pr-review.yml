@@ -18,23 +18,29 @@ jobs:
       - name: Install Claude Code
         run: npm install -g @anthropic-ai/claude-code
 
-      - name: Initialize Claude development environment
+      - name: Setup Claude project plugins
         run: |
-          if [ -f ".claude/settings.json" ]; then
-            MARKETPLACE=$(python3 -c "
-import json
-s = json.load(open('.claude/settings.json'))
-for name, cfg in s.get('extraKnownMarketplaces', {}).items():
-    src = cfg.get('source', {})
-    if src.get('source') == 'github':
-        print('https://github.com/' + src['repo'])
-        break
-" 2>/dev/null)
-            if [ -n "$MARKETPLACE" ]; then
-              echo "Registering project marketplace: $MARKETPLACE"
-              claude plugin marketplace add "$MARKETPLACE" || true
-            fi
-          fi
+          node -e "
+          const fs = require('fs');
+          const {execSync} = require('child_process');
+          try {
+            const s = JSON.parse(fs.readFileSync('.claude/settings.json','utf8'));
+            const mkts = s.extraKnownMarketplaces || {};
+            Object.entries(mkts).forEach(([name, cfg]) => {
+              const src = cfg.source || {};
+              if (src.source === 'github') {
+                const url = 'https://github.com/' + src.repo;
+                console.log('Adding marketplace:', url);
+                execSync('claude plugin marketplace add ' + url, {stdio:'inherit'});
+              }
+            });
+            const plugins = s.enabledPlugins || {};
+            Object.keys(plugins).forEach(slug => {
+              console.log('Installing plugin:', slug);
+              execSync('claude plugin install ' + slug, {stdio:'inherit'});
+            });
+          } catch(e) { console.log('No project plugins configured'); }
+          "
         env:
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
 
