@@ -34,3 +34,7 @@ tests/
 ## Contributing
 
 See [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines.
+
+## Performance improvements
+
+Optimized authentication module for better response times.
